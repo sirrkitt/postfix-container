@@ -7,5 +7,4 @@ RUN apk update --no-cache && \
 VOLUME [ "/config", "/spool", "/ssl" ]
 EXPOSE 25
 
-ENTRYPOINT ["/usr/sbin/postfix", "-c /config"]
-CMD ["start-fg"]
+ENTRYPOINT ["/usr/sbin/postfix", "-c /config", "start-fg"]
