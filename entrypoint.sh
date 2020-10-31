@@ -1,12 +1,11 @@
 #!/bin/sh
 set -e
 /usr/sbin/deluser postfix
-/usr/sbin/delgroup postfix
 
-/usr/sbin/delgroup postdrop
 /usr/sbin/deluser vmail
+/usr/sbin/delgroup postdrop
 
-/usr/sbin/addgroup -S -g $GUID postfix
+/usr/sbin/addgroup -S -g $GID postfix
 /usr/sbin/adduser -S -H -h /var/spool/postfix -G postfix -g postfix -u $UID postfix
 /usr/sbin/addgroup postfix mail
 
@@ -28,4 +27,5 @@ fi
 
 /bin/chown -R root:root /config /socket /ssl
 /bin/chown -R postfix:postfix /data
+
 exec /usr/sbin/postfix -c /config start-fg

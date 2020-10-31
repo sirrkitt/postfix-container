@@ -14,7 +14,7 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod a+x /entrypoint.sh
 
 RUN apk update --no-cache && \
-	apk add -U --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main postfix postfix-ldap postfix-mysql postfix-pgsql postfix-sqlite postfix-pcre && \
+	apk add -U --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main postfix postfix-ldap postfix-mysql postfix-pgsql postfix-sqlite postfix-pcre ca-certificates && \
 	chmod +x /entrypoint.sh
 
 VOLUME [ "/config", "/data", "/ssl"]
