@@ -17,7 +17,7 @@ RUN apk update --no-cache && \
 	apk add -U --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main postfix postfix-ldap postfix-mysql postfix-pgsql postfix-sqlite postfix-pcre ca-certificates && \
 	chmod +x /entrypoint.sh
 
-VOLUME [ "/config", "/data", "/ssl"]
+VOLUME [ "/config", "/data", "/ssl", "/socket" ]
 
 EXPOSE 25
 EXPOSE 465

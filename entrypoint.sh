@@ -25,7 +25,8 @@ then
 	echo "Missing config files!"
 fi
 
-/bin/chown -R root:root /config /socket /ssl
-/bin/chown -R postfix:postfix /data
+/bin/chown root:root /socket
+/bin/chown -R root:root /config /ssl
+/bin/chown -R postfix:postdrop /data
 
 exec /usr/sbin/postfix -c /config start-fg
