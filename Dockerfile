@@ -3,7 +3,7 @@ LABEL maintainer="Jacob Lemus Peschel <jacob@tlacuache.us>"
 
 ENV VERSION="3.6-20201026"
 
-RUN	apt update && apt install -y build-essential libicu67 libicu-dev m4 libdb-dev libldap2-dev libpcre3-dev libssl-dev libmariadb-dev libmariadb-dev-compat libsqlite3-dev libpq-dev liblmdb-dev
+RUN	apt update && apt install -y build-essential libicu67 libicu-dev m4 libdb-dev libldap2-dev libpcre3-dev libssl-dev libmariadb-dev libmariadb-dev-compat libsqlite3-dev libpq-dev liblmdb-dev pkg-config libsasl2-dev
 
 WORKDIR	/usr/src
 ADD	http://cdn.postfix.johnriley.me/mirrors/postfix-release/experimental/postfix-$VERSION.tar.gz	/usr/src/postfix.tar.gz
@@ -23,7 +23,7 @@ RUN	make makefiles pie=yes shared=yes dynamicmaps=no \
 	AUXLIBS_PGSQL="-lpq" \
 	AUXLIBS_SQLITE="-lsqlite3" \
 	AUXLIBS_LMDB="-llmdb" \
-	AUXLIBS="-lssl -lcrypto -lpthread" \
+	AUXLIBS="-L/usr/lib -lssl -lcrypto -lpthread -lsasl2" \
 	CCARGS='-I/usr/include \
 		-DHAS_LDAP \
 		-DHAS_LMDB -DDEF_DB_TYPE=\"lmdb\" \
@@ -32,7 +32,7 @@ RUN	make makefiles pie=yes shared=yes dynamicmaps=no \
 		-DHAS_SQLITE \
 		-DUSE_TLS -I/usr/include/openssl \
 		-DHAS_PCRE -lpcre \
-		-DUSE_SASL_AUTH \
+		-DUSE_SASL_AUTH -DUSE_CYRUS_SASL -I/usr/include/sasl \
 		-DDEF_SERVER_SASL_TYPE=\"dovecot\"' && \
 	make -j44 && \
 	make non-interactive-package install_root="/opt" manpage_directory="/usr/share/man"
@@ -45,8 +45,8 @@ ENV GID=500
 ENV GID_POSTDROP=990
 
 COPY entrypoint.sh /entrypoint.sh
-RUN apt update && apt install -y --no-install-recommends liblmdb0 libldap-2.4-2 libmariadb3 libpq5 
-RUN chmod a+x /entrypoint.sh && mv /config /etc/postfix/default && mkdir -p /config
+RUN apt update && apt install -y --no-install-recommends libsasl2-2 liblmdb0 libldap-2.4-2 libmariadb3 libpq5 libicu67 && apt autoclean && apt clean && rm -rf /var/lib/{apt,dpkg,cache,log}
+RUN chmod a+x /entrypoint.sh && mv /config/* /etc/postfix/ && mkdir -p /config
 
 VOLUME [ "/config", "/data", "/ssl", "/socket", "/spool" ]
 
