@@ -1,8 +1,9 @@
 #!/bin/sh
 set -e
-addgroup --system --gid $GID postfix
-adduser --system --no-create-home --home /data --uid $UID --gid $GID --disabled-password --disabled-login postfix
-addgroup --system --gid $GID_POSTDROP postdrop 
+
+addgroup --system --gid $GID postfix &>/dev/null
+adduser --system --no-create-home --home /data --uid $UID --gid $GID --disabled-password --disabled-login postfix &>/dev/null
+addgroup --system --gid $GID_POSTDROP postdrop &>/dev/null
 
 #check if config read/write
 	#or else die
@@ -14,7 +15,8 @@ then
 
 elif [ ! -e /config/main.cf ] || [ ! -e /config/master.cf ]
 then
-	echo "Missing config files!"
+	echo "No configs found, populating with default"
+	cp /etc/postfix/*.cf /config
 fi
 
 postfix set-permissions
