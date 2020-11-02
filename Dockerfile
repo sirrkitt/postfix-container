@@ -1,23 +1,54 @@
-FROM alpine:3.12
+FROM ubuntu:groovy as builder
 LABEL maintainer="Jacob Lemus Peschel <jacob@tlacuache.us>"
 
-ENV INIT="NO"
-ENV VERSION="3.5.7"
+ENV VERSION="3.6-20201026"
+
+RUN	apt update && apt install -y build-essential libicu67 libicu-dev m4 libdb-dev libldap2-dev libpcre3-dev libssl-dev libmariadb-dev libmariadb-dev-compat libsqlite3-dev libpq-dev liblmdb-dev
+
+WORKDIR	/usr/src
+ADD	http://cdn.postfix.johnriley.me/mirrors/postfix-release/experimental/postfix-$VERSION.tar.gz	/usr/src/postfix.tar.gz
+#ADD	http://cdn.postfix.johnriley.me/mirrors/postfix-release/official/postfix-$VERSION.tar.gz	/usr/src/postfix.tar.gz
+RUN	tar xvf postfix.tar.gz
+
+WORKDIR /usr/src/postfix-$VERSION
+RUN	make makefiles pie=yes shared=yes dynamicmaps=no \
+	meta_directory=/etc/postfix config_directory=/config data_directory=/data queue_directory=/spool \
+	DEBUG="" \
+	manpage_directory=no \
+	readme_directory=no \
+	html_directory=no \
+	AUXLIBS_LDAP="-lldap -llber" \
+	AUXLIBS_MYSQL="-lmysqlclient -lz -lm" \
+	AUXLIBS_PCRE="-lpcre" \
+	AUXLIBS_PGSQL="-lpq" \
+	AUXLIBS_SQLITE="-lsqlite3" \
+	AUXLIBS_LMDB="-llmdb" \
+	AUXLIBS="-lssl -lcrypto -lpthread" \
+	CCARGS='-I/usr/include \
+		-DHAS_LDAP \
+		-DHAS_LMDB -DDEF_DB_TYPE=\"lmdb\" \
+		-DHAS_MYSQL -I/usr/include/mariadb -I/usr/include/mariadb/mysql \
+		-DHAS_PGSQL -I/usr/include/postgresql \
+		-DHAS_SQLITE \
+		-DUSE_TLS -I/usr/include/openssl \
+		-DHAS_PCRE -lpcre \
+		-DUSE_SASL_AUTH \
+		-DDEF_SERVER_SASL_TYPE=\"dovecot\"' && \
+	make -j44 && \
+	make non-interactive-package install_root="/opt" manpage_directory="/usr/share/man"
+
+FROM ubuntu:groovy
+COPY --from=builder /opt /
 
 ENV UID=500
 ENV GID=500
-
-ENV UID_POSTDROP=990
 ENV GID_POSTDROP=990
 
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod a+x /entrypoint.sh
+RUN apt update && apt install -y --no-install-recommends liblmdb0 libldap-2.4-2 libmariadb3 libpq5 
+RUN chmod a+x /entrypoint.sh && mv /config /etc/postfix/default && mkdir -p /config
 
-RUN apk update --no-cache && \
-	apk add -U --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main postfix postfix-ldap postfix-mysql postfix-pgsql postfix-sqlite postfix-pcre ca-certificates && \
-	chmod +x /entrypoint.sh
-
-VOLUME [ "/config", "/data", "/ssl", "/socket" ]
+VOLUME [ "/config", "/data", "/ssl", "/socket", "/spool" ]
 
 EXPOSE 25
 EXPOSE 465

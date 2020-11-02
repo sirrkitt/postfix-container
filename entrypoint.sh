@@ -1,16 +1,8 @@
 #!/bin/sh
 set -e
-/usr/sbin/deluser postfix
-
-/usr/sbin/deluser vmail
-/usr/sbin/delgroup postdrop
-
-/usr/sbin/addgroup -S -g $GID postfix
-/usr/sbin/adduser -S -H -h /var/spool/postfix -G postfix -g postfix -u $UID postfix
-/usr/sbin/addgroup postfix mail
-
-/usr/sbin/addgroup -S -g $GID_POSTDROP postdrop
-/usr/sbin/adduser -S -H -h /var/mail -s /sbin/nologin -G postdrop -u $UID_POSTDROP -g vmail vmail
+addgroup --system --gid $GID postfix
+adduser --system --no-create-home --home /data --uid $UID --gid $GID --disabled-password --disabled-login postfix
+addgroup --system --gid $GID_POSTDROP postdrop 
 
 #check if config read/write
 	#or else die
@@ -25,8 +17,6 @@ then
 	echo "Missing config files!"
 fi
 
-/bin/chown root:root /socket
-/bin/chown -R root:root /config /ssl
-/bin/chown -R postfix:postdrop /data
+postfix set-permissions
 
-exec /usr/sbin/postfix -c /config start-fg
+exec /usr/sbin/postfix start-fg
