@@ -19,4 +19,4 @@ fi
 
 postfix set-permissions
 
-exec /usr/sbin/postfix start-fg
+exec /usr/sbin/postfix -c /config start-fg

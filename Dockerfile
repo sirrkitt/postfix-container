@@ -12,7 +12,7 @@ RUN	tar xvf postfix.tar.gz
 
 WORKDIR /usr/src/postfix-$VERSION
 RUN	make makefiles pie=yes shared=yes dynamicmaps=no \
-	meta_directory=/etc/postfix config_directory=/config data_directory=/data queue_directory=/spool \
+	meta_directory=/etc/postfix config_directory=/etc/postfix data_directory=/data queue_directory=/spool \
 	DEBUG="" \
 	manpage_directory=no \
 	readme_directory=no \
@@ -34,7 +34,7 @@ RUN	make makefiles pie=yes shared=yes dynamicmaps=no \
 		-DHAS_PCRE -lpcre \
 		-DUSE_SASL_AUTH -DUSE_CYRUS_SASL -I/usr/include/sasl \
 		-DDEF_SERVER_SASL_TYPE=\"dovecot\"' && \
-	make -j44 && \
+	make -j4 && \
 	make non-interactive-package install_root="/opt" manpage_directory="/usr/share/man"
 
 FROM ubuntu:groovy
