@@ -46,7 +46,7 @@ ENV GID_POSTDROP=990
 
 COPY entrypoint.sh /entrypoint.sh
 RUN apt update && apt install -y --no-install-recommends libsasl2-2 liblmdb0 libldap-2.4-2 libmariadb3 libpq5 libicu67 && apt autoclean && apt clean && rm -rf /var/lib/{apt,dpkg,cache,log}
-RUN chmod a+x /entrypoint.sh && mv /config/* /etc/postfix/ && mkdir -p /config
+RUN chmod a+x /entrypoint.sh
 
 VOLUME [ "/config", "/data", "/ssl", "/socket", "/spool" ]
 
