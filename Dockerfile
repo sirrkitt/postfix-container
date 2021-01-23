@@ -1,7 +1,7 @@
 FROM ubuntu:groovy as builder
 LABEL maintainer="Jacob Lemus Peschel <jacob@tlacuache.us>"
 
-ENV VERSION="3.6-20201026"
+ENV VERSION="3.6-20210110"
 
 RUN	apt update && apt install -y build-essential libicu67 libicu-dev m4 libdb-dev libldap2-dev libpcre3-dev libssl-dev libmariadb-dev libmariadb-dev-compat libsqlite3-dev libpq-dev liblmdb-dev pkg-config libsasl2-dev
 
