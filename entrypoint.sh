@@ -1,13 +1,12 @@
 #!/bin/sh
 set -e
 
-addgroup --system --gid $GID postfix
-adduser --system --no-create-home --home /data --uid $UID --gid $GID --disabled-password --disabled-login postfix
-addgroup --system --gid $GID_POSTDROP postdrop
+addgroup -S -g $PGID postfix
+adduser -S -H -h /spool -u $PUID -G postfix -D -s /sbin/nologin postfix
+addgroup -S -g $PGID2 postdrop
 
 #check if config read/write
 	#or else die
-
 if [ ! -w "/config/" ]
 then
 	echo "Unable to read or write config directory!"
@@ -19,6 +18,12 @@ then
 	cp /etc/postfix/*.cf /config
 fi
 
-postfix set-permissions
+chown postfix /spool/* || true
+chown postfix /data || true
+
+chown root:postfix /spool/postfix/pid || true
+chgrp postdrop /spool/maildrop || true 
+chgrp postdrop /spool/public || true
+postfix set-permissions || true
 
 exec /usr/sbin/postfix -c /config start-fg
