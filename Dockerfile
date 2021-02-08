@@ -1,7 +1,7 @@
 FROM alpine:3.13 as builder
 LABEL maintainer="Jacob Lemus Peschel <jacob@tlacuache.us>"
 
-ENV VERSION="3.6-20210110"
+ENV VERSION="3.6-20210201"
 
 RUN	apk update --no-cache && apk add -U --no-cache \
 		automake autoconf build-base libtool cyrus-sasl-dev linux-headers lmdb-dev m4 mariadb-connector-c-dev openldap-dev openssl-dev pcre-dev perl postgresql-dev sqlite-dev \
@@ -51,7 +51,8 @@ ENV PGID=500
 ENV PGID2=990
 
 COPY entrypoint.sh /entrypoint.sh
-RUN	apk update --no-cache && apk add -U --no-cache coreutils cyrus-sasl-dev linux-headers lmdb-dev m4 mariadb-connector-c-dev openldap-dev openssl-dev pcre-dev perl postgresql-dev sqlite-dev libnsl db
+#RUN	apk update --no-cache && apk add -U --no-cache cyrus-sasl lmdb m4 mariadb-connector-c openldap openssl pcre perl postgresql sqlite libnsl db
+RUN	apk update --no-cache && apk add -U --no-cache libldap mariadb-connector-c icu-libs libssl1.1 libsasl libcrypto1.1 pcre libpq sqlite-libs db libnsl
 RUN chmod a+x /entrypoint.sh
 
 VOLUME [ "/config", "/data", "/ssl", "/socket", "/spool" ]
